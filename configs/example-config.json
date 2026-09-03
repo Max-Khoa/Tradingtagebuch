@@ -1,0 +1,19 @@
+{
+  "name": "Beispiel Prop Firm",
+  "description": "Sichere Startkonfiguration zum Testen",
+  "currency": "EUR",
+  "accountBalance": 10000,
+  "risk": {
+    "perTradePercent": 0.5,
+    "leverage": 30,
+    "stopDistance": 0.003,
+    "defaultRiskReward": 2
+  },
+  "limits": {
+    "dailyDrawdownPercent": 5,
+    "maxDrawdownPercent": 10,
+    "profitTargetPercent": 10,
+    "trailingDrawdown": false
+  },
+  "history": []
+}

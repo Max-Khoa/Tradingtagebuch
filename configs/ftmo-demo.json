@@ -1,0 +1,19 @@
+{
+  "name": "FTMO-Demo",
+  "description": "Eigene Trading-Konfiguration",
+  "currency": "EUR",
+  "accountBalance": 80000,
+  "risk": {
+    "perTradePercent": 0.5,
+    "leverage": 100,
+    "stopDistance": 0.003,
+    "defaultRiskReward": 2
+  },
+  "limits": {
+    "dailyDrawdownPercent": 5,
+    "maxDrawdownPercent": 10,
+    "profitTargetPercent": 5,
+    "trailingDrawdown": true
+  },
+  "history": []
+}

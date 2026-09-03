@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Northstar Journal</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <aside>
+        <div class="brand">
+          <div class="brand-mark">TRADING / 01</div>
+          <h1>Northstar Journal</h1>
+        </div>
+        <nav aria-label="Hauptnavigation">
+          <button class="active" data-view="new">New Trade</button
+          ><button data-view="today">Today</button
+          ><button data-view="active">Active Trades</button
+          ><button data-view="history">History</button
+          ><button data-view="settings">Settings</button>
+        </nav>
+        <div class="side-note">
+          Dein Entscheidungsprotokoll.<br />Ruhig planen. Sauber auswerten.
+        </div>
+      </aside>
+      <main>
+        <div class="topline">
+          <div>
+            <div class="eyebrow">Trading cockpit</div>
+            <h2 id="pageTitle">New Trade</h2>
+            <div class="date" id="currentDate"></div>
+          </div>
+          <button class="secondary" id="quickLog">Active Trades</button>
+        </div>
+
+        <section class="view active" id="view-new">
+          <div class="grid">
+            <div class="card">
+              <div class="card-head">
+                <h3>Pre-Trade Rechner</h3>
+                <span class="eyebrow">01 / Setup</span>
+              </div>
+              <div class="form-grid">
+                <div>
+                  <label for="instrument">Instrument</label
+                  ><input id="instrument" value="EURUSD" />
+                </div>
+                <div>
+                  <label for="direction">Richtung</label
+                  ><select id="direction">
+                    <option>LONG</option>
+                    <option>SHORT</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="entry">Entry</label
+                  ><input
+                    id="entry"
+                    type="number"
+                    step="0.00001"
+                    placeholder="1.08500"
+                  />
+                </div>
+                <div>
+                  <label for="riskPct">Risiko pro Trade (%)</label
+                  ><input id="riskPct" type="number" step="0.1" value="0.5" />
+                </div>
+                <div>
+                  <label for="rr">Gewinnverhältnis (R:R)</label
+                  ><input id="rr" type="number" step="0.1" value="2" />
+                </div>
+                <div>
+                  <label for="newBalance">Kontostand aus Settings (EUR)</label
+                  ><input id="newBalance" type="text" readonly />
+                </div>
+              </div>
+              <div class="actions">
+                <button class="primary" id="calculate">SL/TP prüfen</button
+                ><span class="hint">Stop-Distanz kommt aus den Settings.</span>
+              </div>
+              <div id="calcResult"></div>
+            </div>
+            <div class="card accent">
+              <div class="eyebrow">Today / Überblick</div>
+              <h3 style="margin-top: 9px">Dein Tag auf einen Blick</h3>
+              <div class="metrics" id="todayMini"></div>
+              <div id="todayMiniList" class="trade-list"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="view-active">
+          <div class="card">
+            <div class="card-head">
+              <h3>Offene Positionen</h3>
+              <span class="eyebrow" id="activeCount">0 active</span>
+            </div>
+            <p class="hint">
+              Beim Schliessen wird der Gewinn oder Verlust aus Entry, Exit und
+              Positionsgroesse berechnet. Erst dann aendert sich der Kontostand.
+            </p>
+            <div id="activeTrades" class="trade-list"></div>
+          </div>
+        </section>
+
+        <section class="view" id="view-today">
+          <div class="grid-wide">
+            <div class="card">
+              <div class="card-head">
+                <h3>Session Analyse</h3>
+                <span class="eyebrow">Today / Metrics</span>
+              </div>
+              <div class="metrics" id="todayMetrics"></div>
+              <canvas
+                id="equityChart"
+                width="900"
+                height="260"
+                aria-label="Equity-Kurve"
+              ></canvas>
+            </div>
+            <div class="card">
+              <div class="eyebrow">Disziplin</div>
+              <h3 style="margin-top: 9px">Compliance heute</h3>
+              <div id="compliancePanel"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="view-prop">
+          <div class="grid">
+            <div class="card accent">
+              <div class="eyebrow">Risk desk</div>
+              <h3 style="margin-top: 9px">Prop-Firm Status</h3>
+              <div id="propMetrics" class="metrics"></div>
+            </div>
+            <div class="card">
+              <div class="card-head">
+                <h3>Limits in Echtzeit</h3>
+                <span class="eyebrow">Guardrails</span>
+              </div>
+              <div id="propPanel"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="view-history">
+          <div class="card">
+            <div class="card-head">
+              <h3>Trade History</h3>
+              <span class="eyebrow" id="historyCount">0 records</span>
+            </div>
+            <div class="toolbar">
+              <input
+                id="historySearch"
+                placeholder="Instrument oder Ergebnis suchen..."
+              /><select id="historyFilter">
+                <option value="ALL">Alle Ergebnisse</option>
+                <option>WIN</option>
+                <option>LOSS</option>
+                <option>BE</option>
+              </select>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Datum</th>
+                    <th>Instrument</th>
+                    <th>Side</th>
+                    <th>Entry</th>
+                    <th>Ergebnis</th>
+                    <th>PnL</th>
+                    <th>R</th>
+                    <th>Plan</th>
+                  </tr>
+                </thead>
+                <tbody id="historyBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="view-settings">
+          <div class="grid">
+            <div class="card">
+              <div class="card-head">
+                <h3>Deine Konfiguration</h3>
+                <span class="eyebrow">Settings</span>
+              </div>
+              <p class="hint">
+                Der Kontostand ist der einzige Kontowert. Nach jedem
+                geschlossenen Trade wird er automatisch erhöht oder verringert.
+                Du kannst eine JSON-Konfiguration laden oder hier bearbeiten.
+              </p>
+              <div class="form-grid">
+                <div class="full">
+                  <label for="configName">Name der Konfiguration</label
+                  ><input id="configName" value="Beispiel Prop Firm" />
+                </div>
+                <div>
+                  <label for="currentBalance">Kontostand (EUR)</label
+                  ><input id="currentBalance" type="number" step="100" />
+                </div>
+                <div>
+                  <label for="stopDistance">Stop-Distanz</label
+                  ><input id="stopDistance" type="number" step="0.00001" />
+                </div>
+                <div>
+                  <label for="leverage">Hebel (1 : X)</label
+                  ><input id="leverage" type="number" step="1" min="1" />
+                </div>
+                <div>
+                  <label for="dailyLimit">Daily Drawdown (%)</label
+                  ><input id="dailyLimit" type="number" step="0.1" value="5" />
+                </div>
+                <div>
+                  <label for="drawdownLimit">Max Drawdown (%)</label
+                  ><input
+                    id="drawdownLimit"
+                    type="number"
+                    step="0.1"
+                    value="10"
+                  />
+                </div>
+                <div>
+                  <label for="profitTarget">Profit Target (%)</label
+                  ><input
+                    id="profitTarget"
+                    type="number"
+                    step="0.1"
+                    value="10"
+                  />
+                </div>
+              </div>
+              <label class="switch"
+                ><input id="trailing" type="checkbox" /> Trailing Drawdown
+                verwenden</label
+              >
+              <div class="actions">
+                <button class="primary" id="saveSettings">
+                  Speichern und Datei erstellen</button
+                ><button class="secondary" id="exportConfig">
+                  Konfiguration exportieren
+                </button>
+              </div>
+              <div class="notice">
+                Beispiel-Konfiguration: 10.000 EUR, Daily Drawdown 5%, Max
+                Drawdown 10%, Profit Target 10%, Stop-Distanz 0.00300.
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-head">
+                <h3>Konfiguration laden</h3>
+                <span class="eyebrow">JSON Format</span>
+              </div>
+              <p class="hint">
+                Lade eine Datei aus dem Ordner <strong>configs</strong>. Die App
+                prueft die Pflichtfelder und uebernimmt nur gueltige Werte.
+              </p>
+              <div class="actions">
+                <button class="secondary" id="importConfigButton">
+                  JSON-Konfiguration laden</button
+                ><input
+                  id="configFile"
+                  type="file"
+                  accept="application/json"
+                  hidden
+                />
+              </div>
+              <div id="configStatus" class="notice">
+                Aktiv: Beispiel Prop Firm
+              </div>
+              <div class="setting-section" style="margin-top: 24px">
+                <h3>So funktioniert es</h3>
+                <p class="hint">
+                  Lade eine bestehende Datei aus <strong>configs</strong> oder
+                  bearbeite die Werte. Beim Speichern wird eine Datei mit dem
+                  Konfigurationsnamen erstellt. Waehle im Dialog den Ordner
+                  <strong>configs</strong> aus.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+        <div class="footerline">
+          Local-first journal · <span id="storageState">ready</span>
+        </div>
+      </main>
+    </div>
+    <script src="js/app.js" defer></script>
+  </body>
+</html>

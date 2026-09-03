@@ -1,0 +1,36 @@
+<section class="view" id="view-history">
+  <div class="card">
+    <div class="card-head">
+      <h3>Trade History</h3>
+      <span class="eyebrow" id="historyCount">0 records</span>
+    </div>
+    <div class="toolbar">
+      <input
+        id="historySearch"
+        placeholder="Instrument oder Ergebnis suchen..."
+      /><select id="historyFilter">
+        <option value="ALL">Alle Ergebnisse</option>
+        <option>WIN</option>
+        <option>LOSS</option>
+        <option>BE</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Datum</th>
+            <th>Instrument</th>
+            <th>Side</th>
+            <th>Entry</th>
+            <th>Ergebnis</th>
+            <th>PnL</th>
+            <th>R</th>
+            <th>Plan</th>
+          </tr>
+        </thead>
+        <tbody id="historyBody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>

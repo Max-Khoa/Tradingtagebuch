@@ -1,0 +1,59 @@
+<section class="view active" id="view-new">
+  <div class="grid">
+    <div class="card">
+      <div class="card-head">
+        <h3>Pre-Trade Rechner</h3>
+        <span class="eyebrow">01 / Setup</span>
+      </div>
+      <div class="form-grid">
+        <div>
+          <label for="instrument">Instrument</label
+          ><input id="instrument" value="EURUSD" />
+        </div>
+        <div>
+          <label for="direction">Richtung</label
+          ><select id="direction">
+            <option>LONG</option>
+            <option>SHORT</option>
+          </select>
+        </div>
+        <div>
+          <label for="entry">Entry</label
+          ><input
+            id="entry"
+            type="number"
+            step="0.00001"
+            placeholder="1.08500"
+          />
+        </div>
+        <div>
+          <label for="riskPct">Risiko pro Trade (%)</label
+          ><input id="riskPct" type="number" step="0.1" value="0.5" />
+        </div>
+        <div>
+          <label for="rr">Gewinnverhältnis (R:R)</label
+          ><input id="rr" type="number" step="0.1" value="2" />
+        </div>
+        <div>
+          <label for="leverage">Hebel aus Config (1 : X)</label
+          ><input id="leverage" type="number" step="1" min="1" readonly />
+        </div>
+        <div>
+          <label for="newBalance">Kontostand aus Settings (EUR)</label
+          ><input id="newBalance" type="text" readonly />
+        </div>
+      </div>
+      <div class="actions">
+        <button class="primary" id="calculate">SL/TP prüfen</button
+        ><span class="hint">Stop-Distanz kommt aus den Settings.</span>
+      </div>
+      <div id="calcResult"></div>
+    </div>
+    <div class="card accent">
+      <div class="eyebrow">Today / Überblick</div>
+      <h3 style="margin-top: 9px">Dein Tag auf einen Blick</h3>
+      <div class="metrics" id="todayMini"></div>
+      <div id="todayMiniList" class="trade-list"></div>
+    </div>
+  </div>
+</section>
