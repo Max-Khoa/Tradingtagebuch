@@ -38,6 +38,19 @@ const esc = (value) =>
   );
 const todayTrades = () =>
   state.trades.filter((t) => t.timestamp.slice(0, 10) === today());
+function renderAccountMetrics() {
+  const balance = Number(state.settings.currentBalance),
+    usedMargin = state.trades
+      .filter((trade) => trade.status === "OPEN")
+      .reduce((sum, trade) => sum + Number(trade.requiredMargin || 0), 0),
+    freeMargin = balance - usedMargin,
+    marginLevel = usedMargin ? (balance / usedMargin) * 100 : Infinity;
+  $("newMargin").value = money(usedMargin);
+  $("newFreeMargin").value = money(freeMargin);
+  $("newMarginLevel").value = Number.isFinite(marginLevel)
+    ? `${marginLevel.toFixed(2)} %`
+    : "∞ %";
+}
 function metrics(trades) {
   const pnl = trades.reduce((sum, t) => sum + Number(t.pnl || 0), 0);
   const wins = trades.filter((t) => t.outcome === "WIN").length;
@@ -169,6 +182,7 @@ function openTrade(saveTrade = true) {
   if (saveTrade) {
     renderMini();
     renderActive();
+    renderAccountMetrics();
   } else {
     $("confirmOpen").onclick = openTrade;
     $("cancelOpen").onclick = () => ($("calcResult").innerHTML = "");
@@ -235,6 +249,7 @@ function closeTrade(id) {
   renderActive();
   renderMini();
   renderToday();
+  renderAccountMetrics();
   alert(
     `Trade geschlossen: ${trade.pnl >= 0 ? "+" : ""}${trade.pnl.toFixed(2)} EUR. Neuer Kontostand: ${state.settings.currentBalance.toFixed(2)} EUR.`,
   );
@@ -384,6 +399,7 @@ $("saveSettings").onclick = () => {
   renderMini();
   renderToday();
   renderProp();
+  renderAccountMetrics();
   saveConfigFile();
 };
 function getConfigFile() {
@@ -548,6 +564,7 @@ function init() {
   $("configName").value = s.configName;
   $("configStatus").textContent = `Aktiv: ${s.configName}`;
   $("newBalance").value = money(s.currentBalance);
+  renderAccountMetrics();
   $("trailing").checked = s.trailing;
   renderMini();
   renderToday();
