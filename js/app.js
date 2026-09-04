@@ -38,6 +38,17 @@ const esc = (value) =>
   );
 const todayTrades = () =>
   state.trades.filter((t) => t.timestamp.slice(0, 10) === today());
+function updateRecommendedLots() {
+  const entry = Number($("entry").value),
+    balance = Number(state.settings.currentBalance),
+    riskPct = Number($("riskPct").value),
+    distance = Number(state.settings.stopDistance),
+    recommended =
+      entry && balance && riskPct && distance
+        ? ((balance * riskPct) / 100 * entry) / (distance * 100000)
+        : 0;
+  $("recommendedLots").value = recommended ? recommended.toFixed(2) : "";
+}
 function renderAccountMetrics() {
   const balance = Number(state.settings.currentBalance),
     usedMargin = state.trades
@@ -396,6 +407,7 @@ $("saveSettings").onclick = () => {
   };
   save();
   $("newBalance").value = money(state.settings.currentBalance);
+  updateRecommendedLots();
   $("configStatus").textContent = `Aktiv: ${state.settings.configName}`;
   renderMini();
   renderToday();
@@ -566,6 +578,9 @@ function init() {
   $("configStatus").textContent = `Aktiv: ${s.configName}`;
   $("newBalance").value = money(s.currentBalance);
   $("lots").value = "0.10";
+  $("entry").oninput = updateRecommendedLots;
+  $("riskPct").oninput = updateRecommendedLots;
+  updateRecommendedLots();
   renderAccountMetrics();
   $("trailing").checked = s.trailing;
   renderMini();
