@@ -113,29 +113,30 @@ function openTrade(saveTrade = true) {
     rr = Number($("rr").value),
     balance = state.settings.currentBalance,
     riskPct = Number($("riskPct").value),
-    distance = Number(state.settings.stopDistance),
+    requestedLots = Number($("lots").value),
     leverage = Number(state.settings.leverage);
   if (
     !entry ||
     !rr ||
     !balance ||
     !riskPct ||
-    !distance ||
+    !requestedLots ||
     !leverage ||
-    rr < 0
+    rr <= 0 ||
+    requestedLots <= 0
   ) {
     $("calcResult").innerHTML =
-      '<div class="notice danger">Bitte pruefe Entry, R:R, Risiko, Hebel und Stop-Distanz in den Settings.</div>';
+      '<div class="notice danger">Bitte pruefe Entry, R:R, Risiko, Lots und Hebel.</div>';
     return;
   }
   const riskAmount = (balance * riskPct) / 100,
     contractSize = 100000,
     volumeStep = 0.01,
-    riskBasedLots = (riskAmount * entry) / (distance * contractSize),
     maxNotional = balance * leverage,
     maxLots = maxNotional / contractSize,
     volume =
-      Math.floor(Math.min(riskBasedLots, maxLots) / volumeStep) * volumeStep,
+      Math.floor(Math.min(requestedLots, maxLots) / volumeStep) * volumeStep,
+    distance = (riskAmount * entry) / (volume * contractSize),
     positionValue = volume * contractSize,
     requiredMargin = positionValue / leverage,
     direction = $("direction").value,
@@ -164,7 +165,7 @@ function openTrade(saveTrade = true) {
     };
   if (volume < volumeStep) {
     $("calcResult").innerHTML =
-      '<div class="notice danger">Das Risiko ist bei dieser Stop-Distanz kleiner als das kleinste MT5-Volumen von 0.01 Lots.</div>';
+      '<div class="notice danger">Das eingestellte Lots-Volumen ist kleiner als das kleinste MT5-Volumen von 0.01 Lots.</div>';
     return;
   }
   if (saveTrade) {
@@ -175,7 +176,7 @@ function openTrade(saveTrade = true) {
     ? `<div class="notice">Trade offen. Trage bei MetaTrader 5 exakt ${volume.toFixed(2)} Lots ein. Der Kontostand bleibt bei ${money(balance)}, bis du die Position schliesst.</div>`
     : '<div class="notice">Alle Werte wurden berechnet. Moechtest du diesen Trade jetzt eroeffnen?</div><div class="actions"><button class="primary" id="confirmOpen">Trade jetzt eroeffnen</button><button class="secondary" id="cancelOpen">Nicht eroeffnen / Zurueck</button></div>';
   $("calcResult").innerHTML =
-    `<div class="result"><div class="result-grid"><div class="metric"><small>Stop-Loss</small><strong>${sl.toFixed(5)}</strong><button class="copy-value" data-copy-value="${sl.toFixed(5)}">Kopieren</button></div><div class="metric"><small>Take-Profit</small><strong>${tp.toFixed(5)}</strong><button class="copy-value" data-copy-value="${tp.toFixed(5)}">Kopieren</button></div><div class="metric"><small>Risiko</small><strong>${money(riskAmount)}</strong></div><div class="metric"><small>MT5 Volumen</small><strong>${volume.toFixed(2)} Lots</strong><button class="copy-value" data-copy-value="${volume.toFixed(2)}">Kopieren</button></div><div class="metric"><small>Positionswert</small><strong>${money(positionValue)}</strong></div><div class="metric"><small>Hebel aus Config</small><strong>1 : ${leverage}</strong></div><div class="metric"><small>Gebundene Margin</small><strong>${money(requiredMargin)}</strong></div></div>${statusMarkup}${volume < riskBasedLots ? '<div class="notice warn">Das MT5-Volumen wurde durch Hebel oder den MT5-Volumenschritt begrenzt.</div>' : ""}</div>`;
+    `<div class="result"><div class="result-grid"><div class="metric"><small>Stop-Loss</small><strong>${sl.toFixed(5)}</strong><button class="copy-value" data-copy-value="${sl.toFixed(5)}">Kopieren</button></div><div class="metric"><small>Take-Profit</small><strong>${tp.toFixed(5)}</strong><button class="copy-value" data-copy-value="${tp.toFixed(5)}">Kopieren</button></div><div class="metric"><small>Risiko</small><strong>${money(riskAmount)}</strong></div><div class="metric"><small>MT5 Volumen</small><strong>${volume.toFixed(2)} Lots</strong><button class="copy-value" data-copy-value="${volume.toFixed(2)}">Kopieren</button></div><div class="metric"><small>Stop-Distanz</small><strong>${distance.toFixed(5)}</strong></div><div class="metric"><small>Positionswert</small><strong>${money(positionValue)}</strong></div><div class="metric"><small>Hebel aus Config</small><strong>1 : ${leverage}</strong></div><div class="metric"><small>Gebundene Margin</small><strong>${money(requiredMargin)}</strong></div></div>${statusMarkup}${volume < requestedLots ? '<div class="notice warn">Das MT5-Volumen wurde durch den maximalen Hebel oder den MT5-Volumenschritt begrenzt.</div>' : ""}</div>`;
   document.querySelectorAll(".copy-value").forEach((button) => {
     button.onclick = () => copyValue(button.dataset.copyValue, button);
   });
@@ -564,6 +565,7 @@ function init() {
   $("configName").value = s.configName;
   $("configStatus").textContent = `Aktiv: ${s.configName}`;
   $("newBalance").value = money(s.currentBalance);
+  $("lots").value = "0.10";
   renderAccountMetrics();
   $("trailing").checked = s.trailing;
   renderMini();
